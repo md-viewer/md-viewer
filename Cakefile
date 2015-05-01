@@ -9,19 +9,18 @@ task "watch",    "watch for source file changes, build", -> taskWatch()
 task "build",    "run a build",                          -> taskBuild()
 task "buildIcns", "build the OS X icns file",            -> taskBuildIcns()
 
-WatchSpec = "lib/**/* www/**/*"
+WatchSpec = "lib/**/* www/**/* .eslintrc"
 
 #-------------------------------------------------------------------------------
 mkdir "-p", "tmp"
 
 #-------------------------------------------------------------------------------
 taskBuild = ->
-  #log "linting ..."
-  #eshint "lib/*.js lib/channels/*.js"
+  log "linting ..."
+  eslint "lib www", (code, output) =>
+    console.log(output)
 
   log "build starting."
-
-  buildBrowserVersion()
 
   platformArch = "#{process.platform}-#{process.arch}"
 
@@ -42,10 +41,6 @@ taskWatch = ->
     files: WatchSpec.split " "
     run:   watchIter
 
-  # watch
-  #   files: "doc/**/*"
-  #   run:   watchIterDoc
-
   watch
     files: "Cakefile"
     run: (file) ->
@@ -54,29 +49,12 @@ taskWatch = ->
       exit 0
 
 #-------------------------------------------------------------------------------
-buildBrowserVersion = ->
-  name   = "md-viewer"
-  jsName = "#{name}.js"
+build_app = (oDir) ->
+  oDir = "#{oDir}/app"
+  mkdir oDir
 
-  # run browserify
-  opts = """
-    --outfile    tmp/#{jsName}
-    --standalone #{name}
-    --entry      www/#{jsName}
-    --debug
-  """
-
-  opts = opts.trim().split(/\s+/).join(" ")
-
-  # log "running browserify ..."
-  # browserify opts
-
-  # run cat-source-map
-
-  # log "running cat-source-map ..."
-  # cat_source_map "--fixFileNames tmp/#{jsName} www/#{jsName}"
-
-  # log "browser file(s) generated at: www/#{jsName}"
+  cp "-R", "lib/*", oDir
+  cp "-R", "www/*", oDir
 
 #-------------------------------------------------------------------------------
 build_darwin_x64 = ->
@@ -84,24 +62,34 @@ build_darwin_x64 = ->
 
   log "building #{platformArch} ..."
 
-  iDir = j "node_modules", "electron-prebuilt", "dist"
-  oDir = j "build", platformArch
+  iDir = "node_modules/electron-prebuilt/dist"
+  oDir = "build/#{platformArch}"
 
-  eiDir = j iDir, "Electron.app"
-  eoDir = j oDir, "Electron.app"
+  eiDir = "#{iDir}/Electron.app"
+  eoDir = "#{oDir}/Electron.app"
 
+  # clean out old app
   rm "-rf", oDir
 
+  # copy electron, swizzle license/version names, locations
   cp "-R", eiDir, oDir
-  cp j(iDir, "LICENSE"), j(eoDir, "LICENSE-electron")
-  cp j(iDir, "version"), j(eoDir, "version-electron")
+  cp "#{iDir}/LICENSE", "#{eoDir}/LICENSE-electron"
+  cp "#{iDir}/version", "#{eoDir}/version-electron"
 
-  cp j("www", "images", "md-viewer.icns"), j(eoDir, "Contents", "Resources")
+  # copy icns
+  cp "www/images/md-viewer.icns", "#{eoDir}/Contents/Resources"
 
-  cfBundleFix "md-viewer-build", j(eoDir, "Contents", "Info.plist")
+  # fix the Info.plist
+  cfBundleFix "md-viewer-build", "#{eoDir}/Contents/Info.plist"
 
-  mv j(eoDir, "Contents", "MacOS", "Electron"), j(eoDir, "Contents", "MacOS", "md-viewer-build")
-  mv eoDir, j(oDir, "md-viewer-build.app")
+  # rename the binary executable
+  mv "#{eoDir}/Contents/MacOS/Electron", "#{eoDir}/Contents/MacOS/md-viewer-build"
+
+  # build the app directory
+  build_app "#{eoDir}/Contents/Resources"
+
+  # rename the .app file
+  mv eoDir, "#{oDir}/md-viewer-build.app"
 
 #-------------------------------------------------------------------------------
 cfBundleFix = (name, iFile) ->
@@ -119,7 +107,7 @@ cfBundleFix = (name, iFile) ->
     log "unable to add additional plist goodies"
     return
 
-  additional = cat j("lib", "additions.plist")
+  additional = cat "etc/darwin-x64/additions.plist"
 
   contents = "#{match[1]}\n#{additional}\n</dict>\n</plist>"
 
@@ -147,10 +135,6 @@ taskBuildIcns = ->
   exec "sips -z 1024 1024 #{iFile} --out #{tDir}/icon_512x512@2x.png"
 
   exec "iconutil --convert icns --output #{oFile} #{tDir}"
-
-#-------------------------------------------------------------------------------
-j = (dirParts...) ->
-  path.join.apply path, dirParts
 
 #-------------------------------------------------------------------------------
 cleanDir = (dir) ->
