@@ -56,6 +56,13 @@ build_app = (oDir) ->
   cp "-R", "lib/*", oDir
   cp "-R", "www/*", oDir
 
+  oDir = "#{oDir}/node_modules"
+  mkdir "-p", oDir
+
+  for dependency of pkg.dependencies
+    log "copying module #{dependency}"
+    cp "-R", "node_modules/#{dependency}", oDir
+
 #-------------------------------------------------------------------------------
 build_darwin_x64 = ->
   platformArch = "darwin-x64"

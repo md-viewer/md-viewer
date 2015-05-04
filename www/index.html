@@ -1,14 +1,17 @@
 <!-- Licensed under the Apache License. See footer for details. -->
 
 <html>
-<head>
-  <title>md-viewer</title>
-</head>
-<body>
-  <h2 style="-webkit-app-region: drag">Welcome to md-viewer</h2>
-</body>
+  <head>
+  </head>
+  <body>
+    <div id="content">
+    </div>
+    <script>
+      const main       = require("./modules/main")
+      const loadMDFile = main.loadMDFile
+    </script>
+  </body>
 </html>
-
 
 <!--
 //==============================================================================
