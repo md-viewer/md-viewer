@@ -1,6 +1,6 @@
 {
   "name":               "md-viewer",
-  "version":            "1.0.0",
+  "version":            "0.9.0",
   "description":        "a desktop Markdown viewer app built on Electron",
   "author":             "pmuellr",
   "main":               "./lib/md-viewer",
@@ -19,6 +19,7 @@
     "backbone":         "1.1.x",
     "bootstrap":        "3.3.x",
     "debug":            "2.1.x",
+    "highlight.js":     "8.5.x",
     "jquery":           "2.1.x",
     "marked":           "0.3.x",
     "underscore":       "1.8.x"
@@ -27,6 +28,7 @@
     "cakex":            "0.1.x",
     "coffee-script":    "1.9.x",
     "electron-prebuilt":"0.25.x",
-    "eslint":           "0.20.x"
+    "eslint":           "0.20.x",
+    "plist":            "1.1.x"
   }
 }

@@ -2,7 +2,10 @@
 
 require "cakex"
 
-pkg = require "./package.json"
+plist = require "plist"
+
+pkg  = require "./package.json"
+ePkg = require "./node_modules/electron-prebuilt/package.json"
 
 #-------------------------------------------------------------------------------
 task "watch",    "watch for source file changes, build", -> taskWatch()
@@ -14,20 +17,23 @@ WatchSpec = "lib/**/* www/**/* .eslintrc"
 #-------------------------------------------------------------------------------
 mkdir "-p", "tmp"
 
+
+
 #-------------------------------------------------------------------------------
 taskBuild = ->
-  log "linting ..."
-  eslint "lib www", (code, output) =>
-    console.log(output)
-
   log "build starting."
 
-  platformArch = "#{process.platform}-#{process.arch}"
+  log "linting ..."
+  eslint "lib www", {silent: true}, (code, output) =>
+    console.log(output)
 
-  if platformArch is "darwin-x64"
-    build_darwin_x64()
+    platformArch = "#{process.platform}-#{process.arch}"
 
-  log "build done."
+    if platformArch is "darwin-x64"
+      build_darwin_x64 "build", "md-viewer-build"
+      build_darwin_x64 "dist",  "md-viewer"
+
+    log "build done."
 
 #-------------------------------------------------------------------------------
 watchIter = ->
@@ -56,21 +62,29 @@ build_app = (oDir) ->
   cp "-R", "lib/*", oDir
   cp "-R", "www/*", oDir
 
-  oDir = "#{oDir}/node_modules"
-  mkdir "-p", oDir
+  omDir = "#{oDir}/node_modules"
+  mkdir "-p", omDir
 
+  log "copying package dependencies..."
   for dependency of pkg.dependencies
-    log "copying module #{dependency}"
-    cp "-R", "node_modules/#{dependency}", oDir
+    cp "-R", "node_modules/#{dependency}", omDir
+
+  aboutFile = "#{oDir}/about.html"
+  aboutContent = cat aboutFile
+  aboutContent = aboutContent.replace(/%%app-version%%/g, pkg.version)
+  aboutContent = aboutContent.replace(/%%electron-version%%/g, ePkg.version)
+  aboutContent.to aboutFile
 
 #-------------------------------------------------------------------------------
-build_darwin_x64 = ->
+build_darwin_x64 = (dir, name)->
   platformArch = "darwin-x64"
 
-  log "building #{platformArch} ..."
+  log "building #{dir}/#{platformArch} ..."
 
   iDir = "node_modules/electron-prebuilt/dist"
-  oDir = "build/#{platformArch}"
+  oDir = "#{dir}/#{platformArch}"
+
+  mkdir "-p", oDir
 
   eiDir = "#{iDir}/Electron.app"
   eoDir = "#{oDir}/Electron.app"
@@ -87,38 +101,53 @@ build_darwin_x64 = ->
   cp "www/images/md-viewer.icns", "#{eoDir}/Contents/Resources"
 
   # fix the Info.plist
-  cfBundleFix "md-viewer-build", "#{eoDir}/Contents/Info.plist"
+  cfBundleFix name, "#{eoDir}/Contents/Info.plist"
 
   # rename the binary executable
-  mv "#{eoDir}/Contents/MacOS/Electron", "#{eoDir}/Contents/MacOS/md-viewer-build"
+  mv "#{eoDir}/Contents/MacOS/Electron", "#{eoDir}/Contents/MacOS/#{name}"
 
   # build the app directory
   build_app "#{eoDir}/Contents/Resources"
 
   # rename the .app file
-  mv eoDir, "#{oDir}/md-viewer-build.app"
+  mv eoDir, "#{oDir}/#{name}.app"
 
 #-------------------------------------------------------------------------------
 cfBundleFix = (name, iFile) ->
   log "fixing #{iFile}..."
 
-  contents = cat iFile
+  pObj = plist.parse( cat iFile )
 
-  contents = contents.replace /atom\.icns/g,            "md-viewer.icns"
-  contents = contents.replace /com\.github\.electron/g, "org.muellerware.#{name}"
-  contents = contents.replace /Electron/g,              "#{name}"
+  pObj.CFBundleDisplayName = name
+  pObj.CFBundleExecutable  = name
+  pObj.CFBundleName        = name
+  pObj.CFBundleIconFile    = "md-viewer.icns"
+  pObj.CFBundleIdentifier  = "org.muellerware.#{name}"
+  pObj.CFBundleVersion     = pkg.version
+  pObj.CFBundleDocumentTypes = [
+    {
+      CFBundleTypeExtensions: [ "md" ],
+      CFBundleTypeIconFile: "md-viewer.icns",
+      CFBundleTypeName:     "public.markdown",
+      CFBundleTypeRole:     "Viewer",
+      LSHandlerRank:        "Alternate",
+      LSItemContentTypes:   [ "public.markdown" ]
+    }
+  ]
 
+  pObj.UTImportedTypeDeclarations = [
+    {
+      UTTypeConformsTo: [ "public.data" ],
+      UTTypeIdentifier: "public.markdown",
+      UTTypeTagSpecification: {
+        "com.apple.ostype":          "markdown",
+        "public.filename-extension": [ "md" ],
+        "public.mime-type":          "text/markdown"
+      }
+    }
+	]
 
-  match = contents.match /([\S\s]*)<\/dict>[\S\s]*?/m
-  unless match
-    log "unable to add additional plist goodies"
-    return
-
-  additional = cat "etc/darwin-x64/additions.plist"
-
-  contents = "#{match[1]}\n#{additional}\n</dict>\n</plist>"
-
-  contents.to iFile
+  plist.build(pObj).to iFile
 
 #-------------------------------------------------------------------------------
 taskBuildIcns = ->

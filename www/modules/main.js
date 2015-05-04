@@ -2,33 +2,86 @@
 
 "use strict"
 
-console.log("loaded", __filename)
-
 const fs = require("fs")
 
-const $      = require("jquery")
-const marked = require("marked")
+const shell    = require("shell")
+const webFrame = require("web-frame")
+
+const $         = require("jquery")
+const marked    = require("marked")
+const highlight = require("highlight.js")
+
+window.mdViewer = {}
+window.mdViewer_openLink   = mdViewer_openLink
+window.mdViewer_loadMDFile = mdViewer_loadMDFile
+window.mdViewer_webFrame   = webFrame
 
 //------------------------------------------------------------------------------
-exports.loadMDFile = loadMDFile
-
-marked.setOptions({
-  renderer:     new marked.Renderer(),
-  gfm:          true,
-  tables:       true,
-  breaks:       false,
-  pedantic:     false,
-  sanitize:     true,
-  smartLists:   true,
-  smartypants:  false
-})
+configureMarked()
 
 //------------------------------------------------------------------------------
-function loadMDFile(fileName) {
-  const mContents = fs.readFileSync(fileName, "utf8")
-  const hContents = marked(mContents)
+/*eslint no-unused-vars:0*/
+function mdViewer_openLink(href) {
+  shell.openExternal(href)
+}
+
+//------------------------------------------------------------------------------
+function mdViewer_loadMDFile(fileName) {
+  let hContents = null
+
+  if (fileName == null) {
+    hContents = fs.readFileSync(__dirname + "/../about.html", "utf8")
+  }
+  else {
+    const mContents = fs.readFileSync(fileName, "utf8")
+    hContents = marked(mContents)
+  }
 
   $("#content").html(hContents)
+}
+
+//------------------------------------------------------------------------------
+function configureMarked() {
+  const renderer = new marked.Renderer()
+
+  renderer.link = renderLink
+
+  marked.setOptions({
+    renderer:     renderer,
+    gfm:          true,
+    tables:       true,
+    breaks:       false,
+    pedantic:     false,
+    sanitize:     true,
+    smartLists:   true,
+    smartypants:  false,
+    highlight:    highlightCode
+  })
+}
+
+//------------------------------------------------------------------------------
+function renderLink(href, title, text) {
+  var plain   = "<a href='javascript:void(0)'>" + text + "</a>"
+  var link    = JSON.stringify(href)
+
+  if (href.match(/^javascript:/i)) return plain
+  if (href.match(/['|"]/)) return plain
+
+  /*eslint no-script-url:0*/
+  href  = "javascript:void(0)"
+
+  var onclick = "mdViewer_openLink(" + link + ")"
+
+  return "<a href='" + href + "' onclick='" + onclick + "'>" + text + "</a>"
+}
+
+//------------------------------------------------------------------------------
+function highlightCode(code, lang) {
+  if (!lang || lang == "") {
+    return highlight.highlightAuto(code).value
+  }
+
+  return highlight.highlightAuto(code, [lang]).value
 }
 
 //------------------------------------------------------------------------------
