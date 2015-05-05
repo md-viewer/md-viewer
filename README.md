@@ -4,8 +4,6 @@ md-viewer - a desktop Markdown viewer app built on Electron
 usage
 ================================================================================
 
-<img width="100" src="www/images/md-viewer.png" style="float:right;">
-
 On OS X, md-viewer associates itself with Markdown files (files with the `.md`
 extension), so you should be able to open a Markdown file with an "Open With..."
 kind of menu option.  To set md-viewer to be the default application used with
@@ -69,7 +67,6 @@ npm run cake -- <command here>
 Run `npm run cake` to see the other commands available in the `Cakefile`.
 
 
-
 license
 ================================================================================
 
@@ -84,3 +81,8 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+
+
+--------------------------------------------------------------------------------
+
+<img width="256" src="www/images/md-viewer.png">
