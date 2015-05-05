@@ -14,7 +14,10 @@ const highlight = require("highlight.js")
 window.mdViewer = {}
 window.mdViewer_openLink   = mdViewer_openLink
 window.mdViewer_loadMDFile = mdViewer_loadMDFile
+window.mdViewer_reload     = mdViewer_reload
 window.mdViewer_webFrame   = webFrame
+
+window.mdViewer_fileName = null
 
 //------------------------------------------------------------------------------
 configureMarked()
@@ -33,9 +36,29 @@ function mdViewer_loadMDFile(fileName) {
     hContents = fs.readFileSync(__dirname + "/../about.html", "utf8")
   }
   else {
+    window.mdViewer_fileName = fileName
     const mContents = fs.readFileSync(fileName, "utf8")
     hContents = marked(mContents)
+    fs.watchFile(fileName, fileModified)
   }
+
+  $("#content").html(hContents)
+}
+
+//------------------------------------------------------------------------------
+function fileModified(curr, prev) {
+  if (curr.mtime == prev.mtime) return
+
+  mdViewer_reload()
+}
+
+//------------------------------------------------------------------------------
+function mdViewer_reload() {
+  const fileName = window.mdViewer_fileName
+  if (fileName == null) return
+
+  const mContents = fs.readFileSync(fileName, "utf8")
+  const hContents = marked(mContents)
 
   $("#content").html(hContents)
 }
