@@ -20,6 +20,7 @@
     "highlight.js":     "8.5.x",
     "jquery":           "2.1.x",
     "marked":           "0.3.x",
+    "mkdirp":           "0.5.x",
     "underscore":       "1.8.x"
   },
   "devDependencies": {
