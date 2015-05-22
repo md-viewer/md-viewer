@@ -73,6 +73,8 @@ build_app = (oDir) ->
   for dependency of pkg.dependencies
     cp "-R", "node_modules/#{dependency}", omDir
 
+  rm "-R", "#{omDir}/jquery/src"
+
   aboutFile = "#{oDir}/about.html"
   aboutContent = cat aboutFile
   aboutContent = aboutContent.replace(/%%app-version%%/g, pkg.version)

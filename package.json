@@ -16,8 +16,6 @@
     "url" :             "https://github.com/pmuellr/md-viewer.git"
   },
   "dependencies": {
-    "backbone":         "1.1.x",
-    "bootstrap":        "3.3.x",
     "debug":            "2.1.x",
     "highlight.js":     "8.5.x",
     "jquery":           "2.1.x",
