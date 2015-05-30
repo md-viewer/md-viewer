@@ -75,10 +75,15 @@ build_app = (oDir) ->
 
   rm "-R", "#{omDir}/jquery/src"
 
-  aboutFile = "#{oDir}/about.html"
+  fixAboutFile "#{oDir}/about.html"
+  fixAboutFile "#{oDir}/about.md"
+
+#-------------------------------------------------------------------------------
+fixAboutFile = (aboutFile)->
   aboutContent = cat aboutFile
   aboutContent = aboutContent.replace(/%%app-version%%/g, pkg.version)
   aboutContent = aboutContent.replace(/%%electron-version%%/g, ePkg.version)
+
   aboutContent.to aboutFile
 
 #-------------------------------------------------------------------------------
