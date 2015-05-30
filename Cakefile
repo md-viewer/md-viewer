@@ -12,7 +12,7 @@ task "watch",    "watch for source file changes, build", -> taskWatch()
 task "build",    "run a build",                          -> taskBuild()
 task "buildIcns", "build the OS X icns file",            -> taskBuildIcns()
 
-WatchSpec = "lib/**/* www/**/* .eslintrc"
+WatchSpec = "lib/**/* www/**/* .eslintrc package.json"
 
 #-------------------------------------------------------------------------------
 mkdir "-p", "tmp"
