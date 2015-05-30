@@ -30,6 +30,8 @@ taskBuild = ->
     platArchDistDirExists = fs.existsSync platArchDistDir
 
     if platArch is "darwin-x64"
+      mkdir "-p", "build/#{platArch}"
+
       build_darwin_x64 "build/#{platArch}", "md-viewer-build"
       build_darwin_x64 platArchDistDir,     "md-viewer" if platArchDistDirExists
 
@@ -65,7 +67,6 @@ build_app = (oDir) ->
   omDir = "#{oDir}/node_modules"
   mkdir "-p", omDir
 
-  log "copying package dependencies..."
   for dependency of pkg.dependencies
     cp "-R", "node_modules/#{dependency}", omDir
 
@@ -89,13 +90,10 @@ build_darwin_x64 = (dir, name)->
   iDir = "node_modules/electron-prebuilt/dist"
   oDir = dir
 
-  mkdir "-p", oDir
-
   eiDir = "#{iDir}/Electron.app"
   eoDir = "#{oDir}/Electron.app"
 
-  # clean out old app
-  rm "-rf", oDir
+  rm "-Rf", eoDir
 
   # copy electron, swizzle license/version names, locations
   cp "-R", eiDir, oDir
@@ -115,6 +113,7 @@ build_darwin_x64 = (dir, name)->
   build_app "#{eoDir}/Contents/Resources"
 
   # rename the .app file
+  rm "-Rf", "#{oDir}/#{name}.app"
   mv eoDir, "#{oDir}/#{name}.app"
 
 #-------------------------------------------------------------------------------
