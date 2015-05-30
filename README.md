@@ -30,8 +30,12 @@ are used to render the markdown:
 install
 ================================================================================
 
-You can download a pre-built binary from the
-[releases page](https://github.com/pmuellr/md-viewer/releases).
+You can download a pre-built binary from the distribution repos; each repo
+manages at platform-specific version, and the binaries are available as archives
+in the repo's releases page.  For each released version, you can download
+either a `.zip` or `.tar.gz` archive.
+
+* mac - https://github.com/md-viewer/md-viewer-dist-darwin-x64/releases
 
 
 building
@@ -41,10 +45,12 @@ building
 * run `npm install` to install dependencies
 * run `npm run build` to build the execute
 
-The executable will be in the `dist` directory.  Note that a "build" version
-is also available in the `build` directory, to make it easier to test a
-development version while you have a stable version installed at the same time,
-on your boxen.
+A "build" version of the executable is available in the `build` directory,
+to make it easier to test a development version while you have a stable version
+installed at the same time, on your boxen.
+
+To build a distribution, you will need to have the relevant `md-viewer-dist-...`
+repo checked out along-side this one.
 
 
 hacking
