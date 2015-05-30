@@ -25,17 +25,13 @@ taskBuild = ->
   eslint "lib www", {silent: true}, (code, output) =>
     console.log(output)
 
-    platformArch = "#{process.platform}-#{process.arch}"
+    platArch              = "#{process.platform}-#{process.arch}"
+    platArchDistDir       = "#{__dirname}/../md-viewer-dist-#{platArch}"
+    platArchDistDirExists = fs.existsSync platArchDistDir
 
-    if platformArch is "darwin-x64"
-      build_darwin_x64 "build", "md-viewer-build"
-      build_darwin_x64 "dist",  "md-viewer"
-
-      # log "building archive..."
-      # cwd = process.cwd()
-      # process.chdir "dist/darwin-x64"
-      # exec "zip -r -y -q md-viewer_darwin-x64_#{pkg.version}.zip md-viewer.app"
-      # process.chdir cwd
+    if platArch is "darwin-x64"
+      build_darwin_x64 "build/#{platArch}", "md-viewer-build"
+      build_darwin_x64 platArchDistDir,     "md-viewer" if platArchDistDirExists
 
     log "build done."
 
@@ -88,12 +84,10 @@ fixAboutFile = (aboutFile)->
 
 #-------------------------------------------------------------------------------
 build_darwin_x64 = (dir, name)->
-  platformArch = "darwin-x64"
-
-  log "building #{dir}/#{platformArch} ..."
+  log "building #{path.relative process.cwd(), dir} ..."
 
   iDir = "node_modules/electron-prebuilt/dist"
-  oDir = "#{dir}/#{platformArch}"
+  oDir = dir
 
   mkdir "-p", oDir
 
@@ -125,8 +119,6 @@ build_darwin_x64 = (dir, name)->
 
 #-------------------------------------------------------------------------------
 cfBundleFix = (name, iFile) ->
-  log "fixing #{iFile}..."
-
   pObj = plist.parse( cat iFile )
 
   pObj.CFBundleDisplayName = name
