@@ -31,11 +31,11 @@ taskBuild = ->
       build_darwin_x64 "build", "md-viewer-build"
       build_darwin_x64 "dist",  "md-viewer"
 
-      log "building archive..."
-      cwd = process.cwd()
-      process.chdir "dist/darwin-x64"
-      exec "zip -r -y -q md-viewer_darwin-x64_#{pkg.version}.zip md-viewer.app"
-      process.chdir cwd
+      # log "building archive..."
+      # cwd = process.cwd()
+      # process.chdir "dist/darwin-x64"
+      # exec "zip -r -y -q md-viewer_darwin-x64_#{pkg.version}.zip md-viewer.app"
+      # process.chdir cwd
 
     log "build done."
 
