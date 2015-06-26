@@ -2,13 +2,10 @@
 
 "use strict"
 
-const app           = require("app")
 const Menu          = require("menu")
-const Dialog        = require("dialog")
 
 const _ = require("underscore")
 
-const main     = require("./main")
 const viewers  = require("./viewers")
 const utils    = require("./utils")
 const MenuData = require("./menu-data")
@@ -42,89 +39,11 @@ class MenuHandler {
 
   //----------------------------------------------------------------------------
   createMenu() {
-    const template = utils.clone(MenuData)
-    setMenuHandlers(template, this)
+    const template = utils.clone(MenuData.template)
+    const handler  = new MenuData.HandlerClass(this)
+    setMenuHandlers(template, handler)
 
     this.menu = Menu.buildFromTemplate(template)
-  }
-
-  //-----------------------------------
-  onOpenFileMenu() {
-    const options = {
-      title:        "Open Markdown File",
-      defaultPath:  process.env.HOME,
-      filters:      [
-        { name: "Markdown files", extensions: ["md", "markdown"] }
-      ],
-      properties: [ "openFile" ]
-    }
-
-    if (this.browserWindow) {
-      Dialog.showOpenDialog(this.browserWindow, options, onOpenFileCB)
-    }
-    else {
-      Dialog.showOpenDialog(options, onOpenFileCB)
-    }
-
-  //-----------------------------------
-    function onOpenFileCB(fileNames) {
-      if (!fileNames) return
-
-      fileNames.forEach(function(fileName) {
-        main.openFile(fileName)
-      })
-    }
-  }
-
-  //-----------------------------------
-  onQuit() {
-    app.quit()
-  }
-
-  //-----------------------------------
-  onPrint() {
-    if (!this.browserWindow) return
-
-    this.browserWindow.print()
-  }
-
-  //-----------------------------------
-  onReload() {
-    if (!this.browserWindow) return
-
-    const script = "mdViewer_reload()"
-    this.browserWindow.webContents.executeJavaScript(script)
-  }
-
-  //-----------------------------------
-  onEnterFullscreen() {
-    if (!this.browserWindow) return
-
-    this.browserWindow.setFullScreen(true)
-  }
-
-  //-----------------------------------
-  onToggleDevTools() {
-    if (!this.browserWindow) return
-
-    this.browserWindow.toggleDevTools()
-  }
-
-  //-----------------------------------
-  onZoomActualSize() {
-    setZoomLevel(this.viewer, 0)
-  }
-
-  //-----------------------------------
-  onZoomIn() {
-    const zoomLevel = getZoomLevel(this.viewer)
-    setZoomLevel(this.viewer, zoomLevel + 1)
-  }
-
-  //-----------------------------------
-  onZoomOut() {
-    const zoomLevel = getZoomLevel(this.viewer)
-    setZoomLevel(this.viewer, zoomLevel - 1)
   }
 
 }
@@ -163,24 +82,6 @@ class AppMenuHandler extends MenuHandler {
 
     return viewer.browserWindow
   }
-}
-
-//------------------------------------------------------------------------------
-function getZoomLevel(viewer) {
-  if (!viewer) return 0
-
-  return viewer.zoomLevel
-}
-
-//------------------------------------------------------------------------------
-function setZoomLevel(viewer, zoomLevel) {
-  if (!viewer) return
-
-  viewer.runScript("mdViewer_webFrame.setZoomLevel(" + zoomLevel + ")")
-  viewer.zoomLevel = zoomLevel
-
-  viewer.prefs.data.window_zoomLevel = zoomLevel
-  viewer.prefs.store()
 }
 
 //------------------------------------------------------------------------------
