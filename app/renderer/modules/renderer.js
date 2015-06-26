@@ -39,7 +39,7 @@ function mdViewer_loadMDFile(fileName) {
     window.mdViewer_fileName = fileName
     const mContents = fs.readFileSync(fileName, "utf8")
     hContents = marked(mContents)
-    fs.watchFile(fileName, fileModified)
+    fs.watchFile(fileName, {interval: 1000}, fileModified)
   }
 
   $("#content").html(hContents)
