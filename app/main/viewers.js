@@ -116,7 +116,7 @@ class Viewer {
   //----------------------------------------------------------------------------
   didFinishLoad() {
     this.runScript("mdViewer_loadMDFile(" + JSON.stringify(this.fullFileName) + ")")
-    this.runScript("mdViewer_webFrame.setZoomLevel(" + this.prefs.data.window_zoomLevel + ")")
+    this.runScript("mdViewer_webFrame.setZoomLevel(" + this.zoomLevel + ")")
   }
 
   //----------------------------------------------------------------------------
