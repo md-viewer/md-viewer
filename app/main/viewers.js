@@ -62,6 +62,7 @@ class Viewer {
   constructor(fileName, options) {
     this.fileName     = fileName
     this.prefs        = options.prefs
+    this.title        = options.title
 
     this.fullFileName = getFullFileName(fileName)
     this.relFileName  = getRelFileName(fileName)
@@ -79,12 +80,9 @@ class Viewer {
       height: this.prefs.data.window_height
     }
 
-    if (this.relFileName) {
-      opts.title = this.relFileName
-    }
-    else {
-      opts.title = pkg.productName
-    }
+    if (this.title)            { opts.title = this.title }
+    else if (this.relFileName) { opts.title = this.relFileName }
+    else                       { opts.title = pkg.productName }
 
     const browserWindow = this.browserWindow = new BrowserWindow(opts)
     browserWindow.mdViewer = this

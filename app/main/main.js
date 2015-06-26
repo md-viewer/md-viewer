@@ -33,13 +33,17 @@ app.on("ready",             on_ready)
 app.on("open-file",         on_open_file)
 
 //------------------------------------------------------------------------------
-function openFile(fileName) {
+function openFile(fileName, title) {
   if (!IsReady) {
     FilesToOpen.push(fileName)
     return
   }
 
-  const viewer = viewers.createViewer(fileName, {prefs: Prefs})
+  const viewer = viewers.createViewer(fileName, {
+    prefs: Prefs,
+    title: title
+  })
+
   viewer.show()
 }
 
@@ -68,7 +72,7 @@ function on_ready() {
 function openAboutFile() {
   if (viewers.hasViewers()) return
 
-  openFile( __dirname + "/../renderer/about.md")
+  openFile( __dirname + "/../renderer/about.md", "About")
 }
 
 //------------------------------------------------------------------------------
