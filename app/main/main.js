@@ -39,7 +39,7 @@ function openFile(fileName) {
     return
   }
 
-  const viewer = viewers.create(fileName, {prefs: Prefs})
+  const viewer = viewers.createViewer(fileName, {prefs: Prefs})
   viewer.show()
 }
 
@@ -56,7 +56,7 @@ function on_ready() {
     openFile(FilesToOpen[i])
   }
 
-  if (viewers.hasViewers()) {
+  if (!viewers.hasViewers()) {
     setTimeout(openAboutFile, 2000)
   }
 
@@ -68,7 +68,7 @@ function on_ready() {
 function openAboutFile() {
   if (viewers.hasViewers()) return
 
-  openFile( __dirname + "/about.md")
+  openFile( __dirname + "/../renderer/about.md")
 }
 
 //------------------------------------------------------------------------------

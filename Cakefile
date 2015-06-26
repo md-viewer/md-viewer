@@ -12,7 +12,7 @@ task "watch",    "watch for source file changes, build", -> taskWatch()
 task "build",    "run a build",                          -> taskBuild()
 task "buildIcns", "build the OS X icns file",            -> taskBuildIcns()
 
-WatchSpec = "lib/**/* www/**/* .eslintrc package.json"
+WatchSpec = "app/**/* .eslintrc package.json"
 
 #-------------------------------------------------------------------------------
 mkdir "-p", "tmp"
@@ -22,7 +22,7 @@ taskBuild = ->
   log "build starting."
 
   log "linting ..."
-  eslint "lib www", {silent: true}, (code, output) =>
+  eslint "app", {silent: true}, (code, output) =>
     console.log(output)
 
     platArch              = "#{process.platform}-#{process.arch}"
@@ -30,7 +30,7 @@ taskBuild = ->
     platArchDistDirExists = fs.existsSync platArchDistDir
 
     if platArch is "darwin-x64"
-      mkdir "-p", "build/#{platArch}"
+      cleanDir "build/#{platArch}"
 
       build_darwin_x64 "build/#{platArch}", "md-viewer-build"
       build_darwin_x64 platArchDistDir,     "md-viewer" if platArchDistDirExists
@@ -61,8 +61,7 @@ build_app = (oDir) ->
   oDir = "#{oDir}/app"
   mkdir oDir
 
-  cp "-R", "lib/*", oDir
-  cp "-R", "www/*", oDir
+  cp "-R", "app/*", oDir
 
   omDir = "#{oDir}/node_modules"
   mkdir "-p", omDir
@@ -72,8 +71,8 @@ build_app = (oDir) ->
 
   rm "-R", "#{omDir}/jquery/src"
 
-  fixAboutFile "#{oDir}/about.html"
-  fixAboutFile "#{oDir}/about.md"
+  fixAboutFile "#{oDir}/renderer/about.html"
+  fixAboutFile "#{oDir}/renderer/about.md"
 
 #-------------------------------------------------------------------------------
 fixAboutFile = (aboutFile)->
@@ -101,10 +100,13 @@ build_darwin_x64 = (dir, name)->
   cp "#{iDir}/version", "#{eoDir}/version-electron"
 
   # copy icns
-  cp "www/images/md-viewer.icns", "#{eoDir}/Contents/Resources"
+  cp "app/renderer/images/md-viewer.icns", "#{eoDir}/Contents/Resources"
 
   # fix the Info.plist
   cfBundleFix name, "#{eoDir}/Contents/Info.plist"
+
+  # remove default_app
+  rm "-rf", "#{eoDir}/Contents/Resources/default_app"
 
   # rename the binary executable
   mv "#{eoDir}/Contents/MacOS/Electron", "#{eoDir}/Contents/MacOS/#{name}"

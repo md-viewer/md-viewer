@@ -16,8 +16,8 @@
     "url" :               "https://github.com/pmuellr/md-viewer.git"
   },
   "dependencies": {
-    "debug":              "2.1.x",
-    "highlight.js":       "8.5.x",
+    "debug":              "2.2.x",
+    "highlight.js":       "8.6.x",
     "jquery":             "2.1.x",
     "marked":             "0.3.x",
     "mkdirp":             "0.5.x",
@@ -25,10 +25,11 @@
     "underscore":         "1.8.x"
   },
   "devDependencies": {
+    "babel":              "5.6.x",
     "cakex":              "0.1.x",
     "coffee-script":      "1.9.x",
-    "electron-prebuilt":  "0.27.x",
-    "eslint":             "0.20.x",
+    "electron-prebuilt":  "0.28.x",
+    "eslint":             "0.23.x",
     "plist":              "1.1.x"
   }
 }

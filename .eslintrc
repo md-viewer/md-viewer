@@ -4,7 +4,9 @@
     "node":     true
   },
   "ecmaFeatures": {
-    "blockBindings": true
+    "blockBindings": true,
+    "classes": true,
+    "forOf": true
   },
   "rules": {
     "quotes":               [1, "double"],

@@ -7,47 +7,66 @@ const path = require("path")
 
 const app = require("app")
 
+const _      = require("underscore")
 const mkdirp = require("mkdirp")
 
-const PREFS = "preferences.json"
+const PrefsFileName = getPrefsFileName("preferences.json")
 
 //------------------------------------------------------------------------------
-exports.load  = load
-exports.store = store
-
-const PrefsFileName = getPrefsFileName()
+exports.create = create
 
 //------------------------------------------------------------------------------
-function load(defaultValues) {
-  if (!PrefsFileName) return defaultValues
+function create(defaultValues) { return new Prefs(defaultValues) }
 
-  if (!fs.existsSync(PrefsFileName)) return defaultValues
+//------------------------------------------------------------------------------
+class Prefs {
 
-  try {
-    const contents = fs.readFileSync(PrefsFileName, "utf8")
-    return JSON.parse(contents)
+  //----------------------------------------------------------------------------
+  constructor(defaultValues) {
+    defaultValues = defaultValues || {}
+
+    this.data     = _.clone(defaultValues)
+    this.fileName = PrefsFileName
+
+    if (!this.fileName) return
+    if (!fs.existsSync(this.fileName)) return
+
+    let contents
+
+    try {
+      contents = fs.readFileSync(this.fileName, "utf8")
+    }
+    catch (e) {
+      console.log("error reading preferences '" + this.fileName + "': " + e)
+      contents = {}
+    }
+
+    try {
+      const fileData = JSON.parse(contents)
+      this.data = _.defaults(fileData, this.data)
+    }
+    catch (e) {
+      console.log("invalid JSON data in preferences '" + this.fileName + "': " + e)
+    }
   }
-  catch (e) {
-    console.log("error reading preferences '" + PrefsFileName + "': " + e)
-    return defaultValues
+
+  //----------------------------------------------------------------------------
+  store() {
+    if (!this.fileName) return
+
+    try {
+      const contents = JSON.stringify(this.data, null, 4)
+      fs.writeFileSync(this.fileName, contents)
+    }
+    catch (e) {
+      console.log("error writing preferences '" + this.fileName + "': " + e)
+    }
   }
+
 }
 
 //------------------------------------------------------------------------------
-function store(obj) {
-  if (!PrefsFileName) return
-
-  try {
-    const contents = JSON.stringify(obj, null, 4)
-    fs.writeFileSync(PrefsFileName, contents)
-  }
-  catch (e) {
-    console.log("error writing preferences '" + PrefsFileName + "': " + e)
-  }
-}
-
-//------------------------------------------------------------------------------
-function getPrefsFileName() {
+function getPrefsFileName(baseName) {
   let userDataPath
 
   try {
@@ -64,7 +83,7 @@ function getPrefsFileName() {
     return null
   }
 
-  return path.join(userDataPath, PREFS)
+  return path.join(userDataPath, baseName)
 }
 
 //------------------------------------------------------------------------------
