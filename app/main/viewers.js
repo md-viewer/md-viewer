@@ -2,14 +2,17 @@
 
 "use strict"
 
+const fs   = require("fs")
 const path = require("path")
 
+const tempfile         = require("tempfile")
 const BrowserWindow    = require("browser-window")
 const throttleDebounce = require("throttle-debounce")
 
-const pkg   = require("../package.json")
-const menus = require("./menus")
-const utils = require("./utils")
+const pkg      = require("../package.json")
+const menus    = require("./menus")
+const utils    = require("./utils")
+const markdown = require("./markdown")
 
 //------------------------------------------------------------------------------
 exports.createViewer               = createViewer
@@ -66,6 +69,7 @@ class Viewer {
 
     this.fullFileName = getFullFileName(fileName)
     this.relFileName  = getRelFileName(fileName)
+    this.htmlFileName = getHtmlFileName(fileName)
     this.zoomLevel    = this.prefs.data.window_zoomLevel
 
     this.openFile()
@@ -75,9 +79,13 @@ class Viewer {
   openFile() {
     // app.addRecentDocument(this.fullFileName)
 
+    markdown.render(this.fullFileName, this.htmlFileName)
+
     const opts = {
-      width:  this.prefs.data.window_width,
-      height: this.prefs.data.window_height
+      width:              this.prefs.data.window_width,
+      height:             this.prefs.data.window_height,
+      preload:            path.join(__dirname, "../renderer/modules/renderer.js"),
+      "node-integration": false
     }
 
     if (this.title)            { opts.title = this.title }
@@ -92,7 +100,9 @@ class Viewer {
     const windowMenu = menus.loadWindowMenu(this)
     browserWindow.setMenu(windowMenu)
 
-    browserWindow.loadUrl("file://" + __dirname + "/../renderer/index.html")
+    this.runScript("window.mdViewer.webFrame.setZoomLevel(" + this.zoomLevel + ")")
+
+    browserWindow.loadUrl("file://" + this.htmlFileName)
 
     if (this.fullFileName) {
       browserWindow.setRepresentedFilename(this.fullFileName)
@@ -109,12 +119,33 @@ class Viewer {
     browserWindow.webContents.on("did-finish-load", function() {
       viewer.didFinishLoad()
     })
+
+    const self = this
+
+    fs.watchFile(this.fullFileName, {interval: 1000}, function(curr, prev) {
+      self.fileModified(curr, prev)
+    })
+  }
+
+  //------------------------------------------------------------------------------
+  reload() {
+    markdown.render(this.fullFileName, this.htmlFileName)
+
+    const hContent = fs.readFileSync(this.htmlFileName, "utf8")
+
+    // this.browserWindow.reload()
+    this.runScript("window.mdViewer.reload(" + JSON.stringify(hContent) + ")")
+  }
+
+  //------------------------------------------------------------------------------
+  fileModified(curr, prev) {
+    if (curr.mtime == prev.mtime) return
+
+    this.reload()
   }
 
   //----------------------------------------------------------------------------
   didFinishLoad() {
-    this.runScript("mdViewer_loadMDFile(" + JSON.stringify(this.fullFileName) + ")")
-    this.runScript("mdViewer_webFrame.setZoomLevel(" + this.zoomLevel + ")")
   }
 
   //----------------------------------------------------------------------------
@@ -134,6 +165,7 @@ class Viewer {
   //----------------------------------------------------------------------------
   onClosed() {
     ViewersOpen.delete(this.fileName)
+    fs.unlinkSync(this.htmlFileName)
   }
 
   //----------------------------------------------------------------------------
@@ -150,6 +182,15 @@ class Viewer {
 //------------------------------------------------------------------------------
 function debounce(ms, fn) {
   return throttleDebounce.debounce(ms, fn)
+}
+
+//------------------------------------------------------------------------------
+function getHtmlFileName(fileName) {
+  if (!fileName) return null
+
+  const htmlTemp = tempfile(".md-viewer.html")
+
+  return htmlTemp
 }
 
 //------------------------------------------------------------------------------

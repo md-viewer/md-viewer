@@ -121,8 +121,7 @@ class HandlerClass {
   onReload() {
     if (!this.menu.browserWindow) return
 
-    const script = "mdViewer_reload()"
-    this.menu.browserWindow.webContents.executeJavaScript(script)
+    this.menu.browserWindow.mdViewer.reload()
   }
 
   //-----------------------------------
@@ -168,7 +167,7 @@ function getZoomLevel(viewer) {
 function setZoomLevel(viewer, zoomLevel) {
   if (!viewer) return
 
-  viewer.runScript("mdViewer_webFrame.setZoomLevel(" + zoomLevel + ")")
+  viewer.runScript("window.mdViewer.webFrame.setZoomLevel(" + zoomLevel + ")")
   viewer.zoomLevel = zoomLevel
 
   viewer.prefs.data.window_zoomLevel = zoomLevel

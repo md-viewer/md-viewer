@@ -13,7 +13,8 @@ const mkdirp = require("mkdirp")
 const PrefsFileName = getPrefsFileName("preferences.json")
 
 //------------------------------------------------------------------------------
-exports.create = create
+exports.create       = create
+exports.getPrefsPath = getPrefsPath
 
 //------------------------------------------------------------------------------
 function create(defaultValues) { return new Prefs(defaultValues) }
@@ -67,14 +68,7 @@ class Prefs {
 
 //------------------------------------------------------------------------------
 function getPrefsFileName(baseName) {
-  let userDataPath
-
-  try {
-    userDataPath = app.getPath("userData")
-  }
-  catch(e) {
-    userDataPath = getPrefsPathUnixy()
-  }
+  const userDataPath = getPrefsPath()
 
   try {
     mkdirp.sync(userDataPath)
@@ -84,6 +78,16 @@ function getPrefsFileName(baseName) {
   }
 
   return path.join(userDataPath, baseName)
+}
+
+//------------------------------------------------------------------------------
+function getPrefsPath() {
+  try {
+    return app.getPath("userData")
+  }
+  catch(e) {
+    return getPrefsPathUnixy()
+  }
 }
 
 //------------------------------------------------------------------------------

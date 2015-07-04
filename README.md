@@ -22,7 +22,7 @@ are used to render the markdown:
     tables:       true
     breaks:       false
     pedantic:     false
-    sanitize:     true
+    sanitize:     false
     smartLists:   true
     smartypants:  false
 
@@ -91,4 +91,4 @@ limitations under the License.
 
 --------------------------------------------------------------------------------
 
-<img width="256" src="www/images/md-viewer.png">
+<img width="256" src="app/renderer/images/md-viewer.png">

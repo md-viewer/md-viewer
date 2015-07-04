@@ -2,9 +2,10 @@
 
 "use strict"
 
-exports.i2a     = i2a
-exports.clone   = clone
-exports.dumpMap = dumpMap
+exports.i2a        = i2a
+exports.clone      = clone
+exports.dumpMap    = dumpMap
+exports.htmlEscape = htmlEscape
 
 //------------------------------------------------------------------------------
 function i2a(iterator) {
@@ -35,6 +36,15 @@ function dumpMap(map) {
   console.log(line)
 }
 
+//------------------------------------------------------------------------------
+function htmlEscape(string) {
+  return string
+    .replace(/&/g,  "&amp;")
+    .replace(/</g,  "&lt;")
+    .replace(/>/g,  "&gt;")
+    .replace(/\'/g, "&#39;")
+    .replace(/\"/g, "&quot;")
+}
 
 //------------------------------------------------------------------------------
 // Licensed under the Apache License, Version 2.0 (the "License")
