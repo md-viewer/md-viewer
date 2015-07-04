@@ -140,37 +140,37 @@ class HandlerClass {
 
   //-----------------------------------
   onZoomActualSize() {
-    setZoomLevel(this.menu.viewer, 0)
+    setZoomFactor(this.menu.viewer, 1)
   }
 
   //-----------------------------------
   onZoomIn() {
-    const zoomLevel = getZoomLevel(this.menu.viewer)
-    setZoomLevel(this.menu.viewer, zoomLevel + 1)
+    const zoomFactor = getZoomFactor(this.menu.viewer)
+    setZoomFactor(this.menu.viewer, zoomFactor * 1.2)
   }
 
   //-----------------------------------
   onZoomOut() {
-    const zoomLevel = getZoomLevel(this.menu.viewer)
-    setZoomLevel(this.menu.viewer, zoomLevel - 1)
+    const zoomFactor = getZoomFactor(this.menu.viewer)
+    setZoomFactor(this.menu.viewer, zoomFactor * 0.8)
   }
 }
 
 //------------------------------------------------------------------------------
-function getZoomLevel(viewer) {
+function getZoomFactor(viewer) {
   if (!viewer) return 0
 
-  return viewer.zoomLevel
+  return viewer.zoomFactor
 }
 
 //------------------------------------------------------------------------------
-function setZoomLevel(viewer, zoomLevel) {
+function setZoomFactor(viewer, zoomFactor) {
   if (!viewer) return
 
-  viewer.runScript("window.mdViewer.webFrame.setZoomLevel(" + zoomLevel + ")")
-  viewer.zoomLevel = zoomLevel
+  viewer.runScript("window.mdViewer.setZoomFactor(" + zoomFactor + ")")
+  viewer.zoomFactor = zoomFactor
 
-  viewer.prefs.data.window_zoomLevel = zoomLevel
+  viewer.prefs.data.window_zoomFactor = zoomFactor
   viewer.prefs.store()
 }
 

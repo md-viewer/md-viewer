@@ -8,14 +8,9 @@ const shell    = require("shell")
 const webFrame = require("web-frame")
 
 window.mdViewer = {}
-window.mdViewer.openLink = openLink
-window.mdViewer.reload   = reload
-window.mdViewer.webFrame = webFrame
-
-//------------------------------------------------------------------------------
-function openLink(href) {
-  shell.openExternal(href)
-}
+window.mdViewer.reload        = reload
+window.mdViewer.openLink      = openLink
+window.mdViewer.setZoomFactor = setZoomFactor
 
 //------------------------------------------------------------------------------
 function reload(content) {
@@ -25,6 +20,16 @@ function reload(content) {
   $(".markdown-body").html(content)
 
   window.scrollTo(scrX, scrY)
+}
+
+//------------------------------------------------------------------------------
+function openLink(href) {
+  shell.openExternal(href)
+}
+
+//------------------------------------------------------------------------------
+function setZoomFactor(zoomFactor) {
+  webFrame.setZoomFactor(zoomFactor)
 }
 
 //------------------------------------------------------------------------------

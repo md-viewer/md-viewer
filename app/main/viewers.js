@@ -70,7 +70,7 @@ class Viewer {
     this.fullFileName = getFullFileName(fileName)
     this.relFileName  = getRelFileName(fileName)
     this.htmlFileName = getHtmlFileName(fileName)
-    this.zoomLevel    = this.prefs.data.window_zoomLevel
+    this.zoomFactor    = this.prefs.data.window_zoomFactor
 
     this.openFile()
   }
@@ -85,7 +85,8 @@ class Viewer {
       width:              this.prefs.data.window_width,
       height:             this.prefs.data.window_height,
       preload:            path.join(__dirname, "../renderer/modules/renderer.js"),
-      "node-integration": false
+      "node-integration": false,
+      "zoom-factor":      this.zoomFactor
     }
 
     if (this.title)            { opts.title = this.title }
@@ -99,8 +100,6 @@ class Viewer {
 
     const windowMenu = menus.loadWindowMenu(this)
     browserWindow.setMenu(windowMenu)
-
-    this.runScript("window.mdViewer.webFrame.setZoomLevel(" + this.zoomLevel + ")")
 
     browserWindow.loadUrl("file://" + this.htmlFileName)
 

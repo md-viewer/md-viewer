@@ -14,9 +14,9 @@ let   IsReady      = false
 const FilesToOpen  = []
 
 const Prefs = prefs.create({
-  window_width:     800,
-  window_height:    600,
-  window_zoomLevel: 0
+  window_width:      800,
+  window_height:     600,
+  window_zoomFactor: 1
 })
 
 //------------------------------------------------------------------------------
